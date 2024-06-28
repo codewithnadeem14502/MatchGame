@@ -1,11 +1,5 @@
 import React from "react";
-
-interface ProgressBarProps {
-  progress: number;
-  totalSteps: number;
-  yellowBananaImage: string;
-  greyBananaImage: string;
-}
+import { ProgressBarProps } from "../types/types";
 
 const ProgressBar = ({
   progress,

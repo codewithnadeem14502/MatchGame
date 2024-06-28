@@ -11,16 +11,10 @@ import cardClick2 from "../assets/cardClick2.mp3";
 import ProgressBar from "../components/ProgressBar";
 import yellowBanana from "../assets/YellowBanana.svg";
 import greyBanana from "../assets/GreyBanana.svg";
-interface FruitCard {
-  id: number;
-  name: string;
-  flipped: boolean;
-  matched: boolean;
-}
+import { FruitCard, fruits } from "../types/types";
+import WrongMovesDisplay from "../components/WrongMovesDisplay";
 
-const fruits = ["Apple", "Banana", "Orange", "Grape", "Mango", "Peach"];
-
-const Activity: React.FC = () => {
+const Activity = () => {
   const navigate = useNavigate();
   const [fruitCards, setFruitCards] = useState<FruitCard[]>([]);
   const [letterCards, setLetterCards] = useState<FruitCard[]>([]);
@@ -166,6 +160,9 @@ const Activity: React.FC = () => {
           greyBananaImage={greyBanana}
         />
       </div>
+      <div className="right-0 absolute top-1">
+        <WrongMovesDisplay wrongMoves={wrongMoves} />
+      </div>
       <div className="flex justify-center space-x-16">
         <div className="grid grid-cols-3 gap-4">
           {fruitCards.map((card) => (
@@ -215,10 +212,6 @@ const Activity: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="text-2xl  font-bold mt-[20px]  bg-[#11AEC6] border-4 border-white  m-5 text-white p-5 rounded-lg">
-        Wrong Moves: {wrongMoves}
       </div>
 
       {showNextButton && (
