@@ -17,3 +17,10 @@ export interface WrongMovesDisplayProps {
 }
 
 export const fruits = ["Apple", "Banana", "Orange", "Grape", "Mango", "Peach"];
+export interface GameEndPopupProps {
+  handleTryAgain: () => void;
+  handleCancel: () => void;
+}
+export interface NextButtonProps {
+  handleNextMove: () => void;
+}
