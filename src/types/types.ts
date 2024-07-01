@@ -24,3 +24,9 @@ export interface GameEndPopupProps {
 export interface NextButtonProps {
   handleNextMove: () => void;
 }
+export interface MatchedBoxProps {
+  currentMatch: {
+    fruit: string;
+    letter: string;
+  } | null;
+}

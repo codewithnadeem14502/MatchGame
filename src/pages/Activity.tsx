@@ -15,6 +15,7 @@ import { FruitCard, fruits } from "../types/types";
 import WrongMovesDisplay from "../components/WrongMovesDisplay";
 import GameEndPopup from "../components/GameEndPopup";
 import NextButton from "../components/NextButton";
+import MatchedBox from "../components/MatchedBox";
 
 const Activity = () => {
   const navigate = useNavigate();
@@ -24,17 +25,24 @@ const Activity = () => {
   const [nextCardType, setNextCardType] = useState<"fruit" | "letter">("fruit");
   const [wrongMoves, setWrongMoves] = useState(0);
   const [matchedPairs, setMatchedPairs] = useState(0);
+  const [currentMatch, setCurrentMatch] = useState<{
+    fruit: string;
+    letter: string;
+  } | null>(null);
   const [showNextButton, setShowNextButton] = useState(false);
   const [showGameOverPopup, setShowGameOverPopup] = useState(false);
-  const MAX_WRONG_MOVES = 5;
+  const MAX_WRONG_MOVES = 6;
+
   useEffect(() => {
     initializeGame();
     setNextCardType("fruit");
   }, []);
+
   const handleTryAgain = () => {
     initializeGame();
     setShowGameOverPopup(false);
   };
+
   const initializeGame = () => {
     const shuffledFruits = [...fruits].sort(() => Math.random() - 0.5);
     const newFruitCards = shuffledFruits.map((fruit, index) => ({
@@ -43,22 +51,34 @@ const Activity = () => {
       flipped: false,
       matched: false,
     }));
+
     const newLetterCards = shuffledFruits.map((fruit, index) => ({
       id: index + 6,
       name: fruit[0].toUpperCase(),
       flipped: false,
       matched: false,
     }));
-    setFruitCards(newFruitCards);
-    setLetterCards(newLetterCards);
+
+    const shuffledFruitCards = [...newFruitCards].sort(
+      () => Math.random() - 0.5
+    );
+    const shuffledLetterCards = [...newLetterCards].sort(
+      () => Math.random() - 0.5
+    );
+
+    setFruitCards(shuffledFruitCards);
+    setLetterCards(shuffledLetterCards);
     setSelectedCards([]);
     setWrongMoves(0);
     setMatchedPairs(0);
+    setCurrentMatch(null);
     setShowNextButton(false);
   };
+
   const handleCancel = () => {
     navigate("/instruction");
   };
+
   const handleCardClick = (card: FruitCard, isFruitCard: boolean) => {
     if (
       card.matched ||
@@ -88,11 +108,15 @@ const Activity = () => {
     if (selectedCards.length === 1) {
       const [firstCard] = selectedCards;
       if (
-        (isFruitCard && firstCard.name === card.name[0]) ||
+        (isFruitCard && firstCard.name === card.name[0].toUpperCase()) ||
         (!isFruitCard && firstCard.name[0].toUpperCase() === card.name)
       ) {
         // Match found
         setMatchedPairs((prev) => prev + 1);
+        setCurrentMatch({
+          fruit: isFruitCard ? card.name : firstCard.name,
+          letter: isFruitCard ? firstCard.name : card.name,
+        });
         setFruitCards((prev) =>
           prev.map((c) =>
             c.name === card.name || c.id === firstCard.id
@@ -128,11 +152,13 @@ const Activity = () => {
       }
     }
   };
+
   const handleNextMove = () => {
     setSelectedCards([]);
     setFruitCards((prev) => prev.map((c) => ({ ...c, flipped: false })));
     setLetterCards((prev) => prev.map((c) => ({ ...c, flipped: false })));
     setShowNextButton(false);
+    setCurrentMatch(null);
     setNextCardType("fruit");
     const audio = new Audio(sound);
     audio.play();
@@ -140,14 +166,17 @@ const Activity = () => {
       navigate("/reward");
     }
   };
+
   const playSound1 = () => {
     const audio = new Audio(cardClick1);
     audio.play();
   };
+
   const playSound2 = () => {
     const audio = new Audio(cardClick2);
     audio.play();
   };
+
   return (
     <div
       className={`w-screen h-screen bg-cover bg-center relative flex flex-col items-center justify-center ${
@@ -155,17 +184,7 @@ const Activity = () => {
       }`}
       style={{ backgroundImage: `url(${finalBg})` }}
     >
-      {showNextButton && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 pointer-events-none">
-          {showNextButton && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 pointer-events-none">
-              <span className="text-orange-500 text-5xl font-bold text-border">
-                it's a match!
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      {showNextButton && <MatchedBox currentMatch={currentMatch} />}
 
       <div className="absolute left-10 top-1 z-10 hover:scale-110 cursor-pointer">
         <BackButton />
@@ -194,7 +213,7 @@ const Activity = () => {
               key={card.id}
               className={`w-24 h-28 ${
                 card.matched ? "invisible" : ""
-              } flex items-center justify-center bg-white  rounded-lg text-purple-500 text-2xl  font-bold cursor-pointer transition-transform duration-300 ${
+              } flex items-center justify-center bg-white rounded-lg text-purple-500 text-2xl font-bold cursor-pointer transition-transform duration-300 ${
                 card.flipped ? "rotate-y-180" : ""
               }`}
               onClick={() => handleCardClick(card, true)}
@@ -205,7 +224,7 @@ const Activity = () => {
                 <img
                   src={redcard}
                   alt="Red Card"
-                  className="w-full h-full "
+                  className="w-full h-full"
                   onClick={playSound1}
                 />
               )}
@@ -219,7 +238,7 @@ const Activity = () => {
               key={card.id}
               className={`w-24 h-28 ${
                 card.matched ? "invisible" : ""
-              } flex items-center justify-center text-purple-500 bg-white  rounded-lg  text-3xl font-bold cursor-pointer transition-transform duration-300 ${
+              } flex items-center justify-center text-purple-500 bg-white rounded-lg text-3xl font-bold cursor-pointer transition-transform duration-300 ${
                 card.flipped ? "rotate-y-180" : ""
               }`}
               onClick={() => handleCardClick(card, false)}
@@ -238,12 +257,12 @@ const Activity = () => {
           ))}
         </div>
       </div>
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-2xl font-bold text-white  p-4 rounded-lg flex  bg-yellow-400">
-        Next :{" "}
+      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-2xl font-bold text-white p-4 rounded-lg flex bg-yellow-400">
+        Next:{" "}
         {nextCardType === "fruit" ? (
-          <p className="text-red-500 pl-1"> Red Card</p>
+          <p className="text-red-500 pl-1">Red Card</p>
         ) : (
-          <p className="text-blue-500 pl-1"> Blue Card</p>
+          <p className="text-blue-500 pl-1">Blue Card</p>
         )}
       </div>
       {showNextButton && <NextButton handleNextMove={handleNextMove} />}
