@@ -1,6 +1,6 @@
-# React + TypeScript + Vite
+# Card Clash
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Card Clash brings competitive card-matching to life as two players face off to see who can score the most matches. The player with the best memory and fastest matches wins, making every turn crucial in this ultimate card battle!
 
 ## Demo Video 
 
